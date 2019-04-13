@@ -68,6 +68,16 @@ double transform_2(char *save)
     return atof(str);
 }
 
+void calcul_second_deriv(double **resu, double *trans, int i)
+{
+    double save = 0;
+    for (int j = 1; j < i - 4; ++j) {
+        save = (trans[j + 1] - trans[j - 1]);
+        save /= (resu[j + 2][0] - resu[j][0]);
+        printf("%0.2lf %0.2f\n", resu[j + 1][0], save);
+    }
+}
+
 void find_point(double **resu, double *trans, int i)
 {
     double save = 0;
@@ -79,6 +89,7 @@ void find_point(double **resu, double *trans, int i)
         }
     }
     printf("resultat %f\n", resu[resultat+1][0]);
+    calcul_second_deriv(resu, trans, i);
 }
 
 void calcul(char **save)
