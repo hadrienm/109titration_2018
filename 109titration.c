@@ -74,22 +74,36 @@ double transform_2(char *save)
     return atof(str);
 }
 
+void find_point(double **resu, double *trans, int i)
+{
+    double save = 0;
+    int resultat = 0;
+    for (int j = 1; j != i - 1; ++j) {
+        if (save < trans[j]) {
+            save = trans[j];
+            resultat = j;
+        }
+    }
+    printf("resultat %f\n", resu[resultat+1][0]);
+}
+
 void calcul(char **save)
 {
     int i = 0;
-    double trans = 0;
     for (; save[i] != NULL; i++);
+    double *trans = malloc(sizeof(double) * (i + 1));
     double **resu = malloc(sizeof(double *) * (i + 1));
     for (i = 0; save[i] != NULL; i++) {
         resu[i] = malloc(sizeof(double) * (3));
         resu[i][0] = transform(save[i]);
         resu[i][1] = transform_2(save[i]);
     }
-    for (int j = 1; j < i - 1; j++) {
-        trans = resu[j + 1][1] - resu[j - 1][1];
-        trans /= (resu[j + 1][0] - resu[j - 1][0]);
-        printf("%0.2lf\n", trans);
+    for (int j = 1, k = 0; j < i - 1; j++, k++) {
+        trans[k] = resu[j + 1][1] - resu[j - 1][1];
+        trans[k] /= (resu[j + 1][0] - resu[j - 1][0]);
+        printf("%0.2lf\n", trans[k]);
     }
+    find_point(resu, trans, i);
 }
 
 char *my_strcpy(char *str)
