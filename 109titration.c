@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <math.h>
 
 int verify_h(char *str)
 {
@@ -75,14 +76,19 @@ double transform_2(char *save)
 
 void calcul(char **save)
 {
-    print_array(save);
     int i = 0;
+    double trans = 0;
     for (; save[i] != NULL; i++);
     double **resu = malloc(sizeof(double *) * (i + 1));
     for (i = 0; save[i] != NULL; i++) {
         resu[i] = malloc(sizeof(double) * (3));
         resu[i][0] = transform(save[i]);
         resu[i][1] = transform_2(save[i]);
+    }
+    for (int j = 1; j < i - 1; j++) {
+        trans = resu[j + 1][1] - resu[j - 1][1];
+        trans /= (resu[j + 1][0] - resu[j - 1][0]);
+        printf("%0.2lf\n", trans);
     }
 }
 
