@@ -15,12 +15,19 @@ static void check_syntax_buffer2(char *line, FILE *stream)
         fclose(stream);
         exit (84);
     }
+    if (line[0] == '.') {
+        write(2, "input error\n", 12);
+        free(line);
+        fclose(stream);
+        exit (84);
+    }
 }
 
 static void check_syntax_buffer(char *line, FILE *stream)
 {
     for (int a = 0; line[a] != '\0'; a++) {
-        if (line[a] == ';' && (line[a + 1] == '\0' || line[a + 1] == '\n')) {
+        if (line[a] == ';' && (line[a + 1] == '\0' ||
+            line[a + 1] == '\n' || line[a + 1] == '.')) {
             write(2, "input error\n", 12);
             free(line);
             fclose(stream);
