@@ -5,13 +5,7 @@
 ** titration
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <math.h>
+#include "my.h"
 
 int verify_h(char *str)
 {
@@ -125,7 +119,11 @@ int main(int ac, char **av)
     size_t nb = 20;
     if (ac < 2)return 84;
     if (ac == 2 && verify_h == 0)return 0;
-    if (cant_open(av[1]) == -1)return 84;
+    if (cant_open(av[1]) == -1) {
+        write(2,"input error\n", 12);
+        return 84;
+    }
+    verification(av[1]);
     stream = fopen(av[1], "r");
     for (; getline(&buff, &nb, stream) != -1; i++);
     save = malloc(sizeof(char *) * (i + 1));
