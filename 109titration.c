@@ -68,82 +68,44 @@ double transform_2(char *save)
     return atof(str);
 }
 
-void calcul_second_deriv(double **resu, double *trans, int i)
+double *calcul_second_deriv(double **resu, double *trans, int i)
 {
+    double *trans_trans = malloc(sizeof(double) * (i + 1));
     printf("Second derivative:\n");
     double save = 0;
-    for (int j = 1; j < i - 3; ++j) {
+    for (int j = 1, k = 0; j < i - 3; ++j, k++) {
         save = (trans[j + 1] - trans[j - 1]);
         save /= (resu[j + 2][0] - resu[j][0]);
         printf("%0.1lf -> %0.2f\n", resu[j + 1][0], save);
+        trans_trans[k] = save;
     }
     printf("\n");
+    return trans_trans;
 }
 
-void last_part(double **resu, double *trans, int i, int resultat, double result[4])
+void estimation(double **resu, double *trans, int i, int resultat, double *trans_trans)
 {
-    int k = i - 2;
-    int key = resu[resultat][0];
-    double it = result[0];
-    double ph = result[1];
-    double one = result[2];
-    double two = result[3];
-    double recursive = result[4];
-    double res = 0;
-    if (key + 3 >= k)
-        res = -two / 10;
-    else {
-        one = (trans[key + 2] - trans[key]);
-        one /= (resu[key + 2][0] - resu[key][0]);
-        res = (one - two);
-        res /= (10 * (resu[key + 1][0] - resu[key][0]));
-    }
-    two += res;
-    while (it - 0.05 < resu[key + 1][0]) {
-        printf("%0.1f ml -> %.2f\n", it, two);
-        two += res;
-        it += 0.1;
-        if (fabs(ph) > fabs(two) && key + 3 < i) {
-            ph = two;
-            recursive = it;
-        }
-    }
-    printf("\nEquivalent point at %g ml\n", recursive);
-}
-
-void estimation(double **resu, double *trans, int i, int resultat)
-{
+    int m = 1;
+    double one_time = 0.1;
     printf("Second derivative estimated:\n");
-    double recursive = resu[resultat][0];
     int key = resu[resultat][1];
-    double it = resu[key][0];
-    double ph = 0;
-    double one = 0;
-    double result[5];
-    result[0] = it;
-    if (key - 2 > 0) {
-        ph = (trans[key] - trans[key - 1]);
-        ph /= (resu[key][0] - resu[key - 1][0]);
-        one = ph;
-    }
-    result[1] = ph;
-    result[2] = one;
-    double two = (trans[key + 2] - trans[key]);
-    two /= (resu[key + 2][0] - resu[key][0]);
-    result[3] = two;
-    double res = two - one;
-    res /= (10 * (resu[key + 1][0] - resu[key][0]));
-    result[4] = recursive;
-    while (result[0] - 0.05 < resu[resultat][0]) {
-        printf("%0.1f ml -> %.2f\n", result[0], result[2]);
-        if (fabs(result[1]) > fabs(result[2]) &&  resultat + 3 < i) {
-            result[1] = result[2];
-            result[4] = result[0];
+    int it = resu[key][0];
+    double diff = 0;
+    double diff_int = 0;
+    //double *saveee = malloc(sizeof(double) * (it ))
+    for (int k = it - 1; k < resu[key+1][0]; k++) {
+        diff = trans_trans[k-2] - trans_trans[k-1];
+        diff_int = fabs(resu[k][0] - resu[k + 1][0]);
+        for (double j = resu[k][0], m = 0; j < resu[k+1][0] - one_time; j += 0.1, m++) {
+            if (resu[k+1][0] == resu[key+1][0] && one_time == 0.1) {
+                one_time = 0;
+            }
+            if (diff_int <= 0)
+                printf("%0.1lf ml -> %0.2lf\n", j, trans_trans[k-2] + ((diff / (diff_int * 10))) * m);
+            else
+                printf("%0.1lf ml -> %0.2lf\n", j, trans_trans[k-2] - ((diff / (diff_int * 10))) * m);
         }
-        result[2] += res;
-        result[0] += 0.1;
     }
-    last_part(resu, trans, i, resultat, result);
 }
 
 void find_point(double **resu, double *trans, int i)
@@ -157,8 +119,8 @@ void find_point(double **resu, double *trans, int i)
         }
     }
     printf("\nEquivalent point at %0.1f ml\n\n", resu[resultat+1][0]);
-    calcul_second_deriv(resu, trans, i);
-    estimation(resu, trans, i, resultat);
+    double *trans_trans = calcul_second_deriv(resu, trans, i);
+    estimation(resu, trans, i, resultat, trans_trans);
 }
 
 void calcul(char **save)
