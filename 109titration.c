@@ -83,8 +83,22 @@ double *calcul_second_deriv(double **resu, double *trans, int i)
     return trans_trans;
 }
 
+void find_point2(double **resu, double **trans, int i)
+{
+    double save = 0;
+    int resultat = 0;
+    for (int j = 1; j != i - 1; ++j) {
+        if (save < trans[j][0]) {
+            save = trans[j][0];
+            resultat = j;
+        }
+    }
+    printf("\nEquivalent point at %0.1f ml\n\n", resu[resultat + 1][1]);
+}
+
 void estimation(double **resu, double *trans, int i, int resultat, double *trans_trans)
 {
+    int salut = 0;
     int m = 1;
     double one_time = 0.1;
     printf("Second derivative estimated:\n");
@@ -92,20 +106,28 @@ void estimation(double **resu, double *trans, int i, int resultat, double *trans
     int it = resu[key][0];
     double diff = 0;
     double diff_int = 0;
-    //double *saveee = malloc(sizeof(double) * (it ))
+    double **saveee = malloc(sizeof(double) * (257));
     for (int k = it - 1; k < resu[key+1][0]; k++) {
         diff = trans_trans[k-2] - trans_trans[k-1];
         diff_int = fabs(resu[k][0] - resu[k + 1][0]);
-        for (double j = resu[k][0], m = 0; j < resu[k+1][0] - one_time; j += 0.1, m++) {
+        for (double j = resu[k][0], m = 0; j < resu[k+1][0] - one_time; j += 0.1, m++, salut++) {
+            saveee[salut] = malloc(sizeof(double) * (3));
             if (resu[k+1][0] == resu[key+1][0] && one_time == 0.1) {
                 one_time = 0;
             }
-            if (diff_int <= 0)
+            if (diff_int <= 0) {
                 printf("%0.1lf ml -> %0.2lf\n", j, trans_trans[k-2] + ((diff / (diff_int * 10))) * m);
-            else
+                saveee[salut][0] = trans_trans[k-2] + ((diff / (diff_int * 10))) * m;
+                saveee[salut][1] = j;
+            }
+            else {
+                saveee[salut][0] = trans_trans[k-2] - ((diff / (diff_int * 10))) * m;
                 printf("%0.1lf ml -> %0.2lf\n", j, trans_trans[k-2] - ((diff / (diff_int * 10))) * m);
+                saveee[salut][1] = j;
+            }
         }
     }
+    find_point2(saveee, saveee, i);
 }
 
 void find_point(double **resu, double *trans, int i)
