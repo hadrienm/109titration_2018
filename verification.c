@@ -81,6 +81,7 @@ static void condition(char *line, int a, FILE *stream)
 
 void verification(char *av)
 {
+    static int c = 0;
     FILE *stream;
     char *line = NULL;
     size_t len = 0;
@@ -88,8 +89,11 @@ void verification(char *av)
 
     stream = fopen(av, "r");
     while ((nread = getline(&line, &len, stream) != -1))
-        for (int a = 0; line[a] != '\0'; a++)
+        for (int a = 0; line[a] != '\0'; a++) {
             condition(line, a, stream);
+            c++;
+        }
+    if (c == 0) exit(84);
     free(line);
     fclose(stream);
 }
