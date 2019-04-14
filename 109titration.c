@@ -71,12 +71,97 @@ double transform_2(char *save)
 void calcul_second_deriv(double **resu, double *trans, int i)
 {
     double save = 0;
-    for (int j = 1; j < i - 4; ++j) {
+    for (int j = 1; j < i - 3; ++j) {
         save = (trans[j + 1] - trans[j - 1]);
         save /= (resu[j + 2][0] - resu[j][0]);
         printf("%0.2lf %0.2f\n", resu[j + 1][0], save);
     }
 }
+
+void last_part(double **resu, double *trans, int i, int resultat, double result[4])
+{
+    int k = i - 2;
+    int key = resu[resultat][0];
+    double it = result[0];
+    double ph = result[1];
+    double one = result[2];
+    double two = result[3];
+    double recursive = result[4];
+    double res = 0;
+    if (key + 3 >= k)
+        res = -two / 10;
+    else {
+        one = (trans[key + 2] - trans[key]);
+        one /= (resu[key + 2][0] - resu[key][0]);
+        res = (one - two);
+        res /= (10 * (resu[key + 1][0] - resu[key][0]));
+    }
+    two += res;
+    while (it - 0.05 < resu[key + 1][0]) {
+        printf("volume: %g ml -> %.2f\n", it, two);
+        two += res;
+        it += 0.1;
+        if (fabs(ph) > fabs(two) && key + 3 < i) {
+            ph = two;
+            recursive = it;
+        }
+    }
+    printf("\nEquivalent point at %g ml", recursive);
+}
+
+void estimation(double **resu, double *trans, int i, int resultat)
+{
+    double recursive = resu[resultat][0];
+    int key = resu[resultat][1];
+    double it = resu[key][0];
+    double ph = 0;
+    double one = 0;
+    double result[5];
+    result[0] = it;
+    if (key - 2 > 0) {
+        ph = (trans[key] - trans[key - 1]);
+        ph /= (resu[key][0] - resu[key - 1][0]);
+        one = ph;
+    }
+    result[1] = ph;
+    result[2] = one;
+    double two = (trans[key + 2] - trans[key]);
+    two /= (resu[key + 2][0] - resu[key][0]);
+    result[3] = two;
+    double res = two - one;
+    res /= (10 * (resu[key + 1][0] - resu[key][0]));
+    result[4] = recursive;
+    while (result[0] - 0.05 < resu[resultat][0]) {
+        printf("volume: %g ml -> %.2f\n", result[0], result[2]);
+        if (fabs(result[1]) > fabs(result[2]) &&  resultat + 3 < i) {
+            result[1] = result[2];
+            result[4] = result[0];
+        }
+        result[2] += res;
+        result[0] += 0.1;
+    }
+    last_part(resu, trans, i, resultat, result);
+}
+
+    /*double two = 0;
+    double res = 0;
+    double save = 0;
+    double solu = 0;
+    double result[5];
+    if (resultat - 2 > 0) {
+        solu = (trans[resultat] - trans[resultat - 2]);
+        solu /= (resu[resultat][0] - resu[resultat - 2][0]);
+        save = solu;
+    }
+    result[0] = resu[resultat-1][0];
+    result[1] = solu;
+    result[2] = save;
+    two = (trans[resultat + 1] - trans[resultat - 1]);
+    two /= (resu[resultat + 1][0] - resu[resultat - 1][0]);
+    result[3] = two;
+    res = (two - save);
+    res /= (10 * (resu[resultat][0] - resu[resultat - 1][0]));
+    result[4] = resu[resultat][0];*/
 
 void find_point(double **resu, double *trans, int i)
 {
@@ -90,6 +175,7 @@ void find_point(double **resu, double *trans, int i)
     }
     printf("resultat %f\n", resu[resultat+1][0]);
     calcul_second_deriv(resu, trans, i);
+    estimation(resu, trans, i, resultat);
 }
 
 void calcul(char **save)
